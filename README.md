@@ -82,4 +82,5 @@ The interval at which this heartbeat is required can be set here see: [`cleanupI
 ```
 
 ### 📄 License
-MIT License. Feel free to use, modify, and share!
+This project is licensed under the [MIT License](./LICENSE).
+Feel free to use, modify, and share!
