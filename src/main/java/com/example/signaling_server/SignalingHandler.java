@@ -1,6 +1,5 @@
 package com.example.signaling_server;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -54,6 +53,8 @@ public class SignalingHandler extends TextWebSocketHandler {
                     System.out.println("Failed to forward " + msg.getType() + " - target not found: " + msg.getDestination());
                 }
                 break;
+            case "heartbeat":
+                updatePeerHeartbeat(session, msg);
         }
 
         System.out.println("Message from: " + session.getId() + ": " + message.getPayload());
@@ -74,6 +75,12 @@ public class SignalingHandler extends TextWebSocketHandler {
         System.out.println("Connection closed: " + session.getId());
     }
 
+    private void  updatePeerHeartbeat(WebSocketSession session, Message msg) throws IOException {
+        String peerId = msg.getSource();
+        peerRegistry.updateHeartbeat(peerId);
+
+        session.sendMessage(new TextMessage("Heartbeat received from " + peerId));
+    }
     private void broadcastRegistry() throws IOException {
         // retrieving list of peers
         List<Map<String, String>> peerList = peerRegistry.getPeerSummaryList();
