@@ -5,8 +5,10 @@ import org.springframework.web.socket.WebSocketSession;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Service
 public class PeerRegistryService {
@@ -15,6 +17,13 @@ public class PeerRegistryService {
 
     public void registerPeer(String id, String name, WebSocketSession session) {
         peers.put(id, new Peer(id, name, session));
+    }
+
+    public List<Map<String, String>> getPeerSummaryList() {
+        return peers.values().stream().map(peer -> Map.of(
+                "peerId", peer.getId(),
+                "displayName", peer.getDisplayName()
+        )).collect(Collectors.toList());
     }
 
     public void updateHeartbeat(String id) {
@@ -34,5 +43,9 @@ public class PeerRegistryService {
 
     public Peer getPeer(String id) {
         return peers.get(id);
+    }
+
+    public int getLength() {
+        return peers.size();
     }
 }
