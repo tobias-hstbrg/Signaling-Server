@@ -1,10 +1,15 @@
 package com.example.signaling_server;
 
+import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.io.IOException;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,6 +47,32 @@ public class PeerRegistryService {
         Peer peer = peers.get(id);
         if (peer != null) {
             peer.setLastSeen(Instant.now());
+        }
+    }
+
+    // inactive peer cleanup
+    @Scheduled(fixedRate = 60000)
+    public void cleanupInactivePeers() throws IOException {
+        Instant currentTime = Instant.now();
+        Duration timeout = Duration.ofSeconds(30);
+
+        Iterator<Map.Entry<String, Peer>> iterator = peers.entrySet().iterator();
+
+        while(iterator.hasNext())
+        {
+            Map.Entry<String, Peer> entry = iterator.next();
+            Peer peer = entry.getValue();
+
+            // Check if the peer is inactive for longer then the set duration.
+            if (peer.getLastSeen().isBefore(currentTime.minus(timeout))) {
+                iterator.remove();
+                try {
+                    peer.getSession().close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("Removed inactive peer: " + peer.getId());
+            }
         }
     }
 

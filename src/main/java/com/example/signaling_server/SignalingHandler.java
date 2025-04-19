@@ -81,7 +81,7 @@ public class SignalingHandler extends TextWebSocketHandler {
 
         session.sendMessage(new TextMessage("Heartbeat received from " + peerId));
     }
-    private void broadcastRegistry() throws IOException {
+    public void broadcastRegistry() throws IOException {
         // retrieving list of peers
         List<Map<String, String>> peerList = peerRegistry.getPeerSummaryList();
 
