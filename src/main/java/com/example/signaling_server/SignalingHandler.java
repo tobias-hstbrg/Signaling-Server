@@ -40,6 +40,20 @@ public class SignalingHandler extends TextWebSocketHandler {
                 boolean successfull = registerPeer(session, msg);
                 broadcastRegistry();
                 break;
+
+            case "offer":
+            case "answer":
+            case "ice-candidate":
+                Peer target = peerRegistry.getPeer(msg.getDestination());
+                if(target != null && target.getSession().isOpen()) {
+                    String forward = objectMapper.writeValueAsString(msg);
+                    target.getSession().sendMessage(new TextMessage(forward));
+                    System.out.println("Forwarded " + msg.getType() + " from " + msg.getSource() + " to " + msg.getDestination());
+                }
+                else {
+                    System.out.println("Failed to forward " + msg.getType() + " - target not found: " + msg.getDestination());
+                }
+                break;
         }
 
         System.out.println("Message from: " + session.getId() + ": " + message.getPayload());
@@ -50,8 +64,12 @@ public class SignalingHandler extends TextWebSocketHandler {
         //Cleanup logic
 
         // Remove peer from registry
-        /*peerRegistry.removePeer(session.getId());
-        broadcastRegistry();*/
+        String removedPeerId = peerRegistry.removeBySession(session);
+        if(removedPeerId != null) {
+            broadcastRegistry();
+            System.out.println("Removed peer: " + removedPeerId);
+        }
+
 
         System.out.println("Connection closed: " + session.getId());
     }

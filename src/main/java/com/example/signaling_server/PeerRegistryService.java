@@ -14,9 +14,21 @@ import java.util.stream.Collectors;
 public class PeerRegistryService {
 
     private final Map<String, Peer> peers = new ConcurrentHashMap<>();
+    private final Map<WebSocketSession, String> sessionToPeerId = new ConcurrentHashMap<>();
 
     public void registerPeer(String id, String name, WebSocketSession session) {
-        peers.put(id, new Peer(id, name, session));
+        Peer peer = new Peer(id, name, session);
+        peers.put(id, peer);
+        sessionToPeerId.put(session, id);
+    }
+
+    public String removeBySession(WebSocketSession session) {
+        String peerId = sessionToPeerId.remove(session);
+        if(peerId != null) {
+            peers.remove(peerId);
+            return peerId;
+        }
+        return null;
     }
 
     public List<Map<String, String>> getPeerSummaryList() {
