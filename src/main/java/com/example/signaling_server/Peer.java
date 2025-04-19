@@ -32,4 +32,8 @@ public class Peer {
     public Instant getLastSeen() {
         return this.lastSeen;
     }
+
+    public void setLastSeen(Instant lastSeen) {
+        this.lastSeen = lastSeen;
+    }
 }

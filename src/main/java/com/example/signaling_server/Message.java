@@ -21,4 +21,20 @@ public class Message {
     public Object getPayload() {
         return this.payload;
     }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public void setDestination(String destination) {
+        this.destination = destination;
+    }
+
+    public void setPayload(Object payload) {
+        this.payload = payload;
+    }
 }
