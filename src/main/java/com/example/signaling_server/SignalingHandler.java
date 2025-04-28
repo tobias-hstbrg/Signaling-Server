@@ -8,6 +8,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -79,7 +80,12 @@ public class SignalingHandler extends TextWebSocketHandler {
         String peerId = msg.getSource();
         peerRegistry.updateHeartbeat(peerId);
 
-        session.sendMessage(new TextMessage("Heartbeat received from " + peerId));
+        Map<String, String> response = new HashMap<>();
+        response.put("type","heartbeat_ack");
+        response.put("peerId", peerId);
+        String jsonResponse = objectMapper.writeValueAsString(response);
+
+        //session.sendMessage(new TextMessage("Heartbeat received from " + peerId));
     }
     public void broadcastRegistry() throws IOException {
         // retrieving list of peers
